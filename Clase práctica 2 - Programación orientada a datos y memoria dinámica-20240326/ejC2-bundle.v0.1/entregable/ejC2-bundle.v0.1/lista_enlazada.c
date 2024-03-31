@@ -22,38 +22,37 @@ uint32_t longitud(lista_t* lista) {
     uint32_t longitud = 0;
     nodo_t* actual = lista->head;
 
-    while (actual != NULL) // checkear tema NULL
+    while (actual != NULL) 
     {
         actual = actual->next;
         longitud++;        
     }
+    /* printf("La lista tiene longitud : %u\n", longitud) */
 
     return longitud;
 }
 
 void agregar_al_final(lista_t* lista, uint32_t* arreglo, uint64_t longitud) {
+    /* la idea es al ultimo nodo con nodo.next == NULL , le asignamos el nuevo nodo */
 
-    /* Pido memoria para el nuevo nodo */
-    nodo_t* nuevo = (nodo_t*)malloc(sizeof(nodo_t));
-    nodo_t* actual = lista->head;
+    /* 1_ creo el nodo */
+    // [
+    nodo_t* nuevo = malloc(sizeof(nodo_t));
+    nuevo->arreglo = arreglo;
+    nuevo->longitud = longitud;
+    nuevo->next = NULL; 
+    // ]
 
-    /* si la lista está vacía? si no? */
-    if (actual == NULL)
+
+    /* 2_ hallar al nodo que apunta a NULL */
+    nodo_t* ultimo = lista->head;
+    while (ultimo->next != NULL)
     {
-        lista->head = nuevo;
+        ultimo = ultimo->next;
     }
     
-    while (actual->next != NULL)
-    {
-        actual = actual->next;
-    }
-    /* asigno los valores que me pide asignar : arreglo y len */
-    actual = nuevo;
-
-    actual->next = NULL;
-    actual->longitud = longitud;
-    actual->arreglo = arreglo;
-    
+    /* 3_ asignar al anterior al nuevo */
+    ultimo->next = nuevo;
 }
 
 nodo_t* iesimo(lista_t* lista, uint32_t i) {
@@ -66,14 +65,14 @@ nodo_t* iesimo(lista_t* lista, uint32_t i) {
     if (i >= longitud(lista) || i < 0)
     {
         return NULL;
-    } // ToniusRetonius 
+    }
     
     while (j != i && actual != NULL)
     {
         actual = actual->next;
         j++;
     }
-    // cuando llegamos al i-esimo nodo, salimos del while y devolvemos el nodo donde estamos parados
+    /* estamos retornando la posicion de memoria donde esta ese i */
     return actual;
 }
 
@@ -84,34 +83,67 @@ uint64_t cantidad_total_de_elementos(lista_t* lista) {
     while(actual != NULL){
         sumaTotal += actual->longitud;
         actual = actual->next;
-    }
+    } 
+    /*printf("Cantidad total de elementos en la lista: %lu\n", sumaTotal); */
     return sumaTotal;    
 }
 
 void imprimir_lista(lista_t* lista) {
     nodo_t* actual = lista->head;
-    uint64_t cantidad;
-    // implemento cantidad total de elementos de forma recursiva.
-    /*
-         | "NULL"    si actual = NULL
-    f(n) | 
-         | "| longitud(actual) |" + imprimir_lista(actual.siguiente) si actual != NULL
-    */
-    
+
+    while (actual != NULL)
+    {   
+        printf("| %d | -> ", actual->longitud);
+        actual = actual->next;
+    }
+    printf("null\n");
 }
 
-// Función auxiliar para lista_contiene_elemento
-int array_contiene_elemento(uint32_t* array, uint64_t size_of_array, uint32_t elemento_a_buscar) {
-
+// Función auxiliar para lista_contiene_elemento -> O(n) buscar elemento
+int array_contiene_elemento(uint32_t* array, uint64_t size_of_array, uint32_t elemento_a_buscar) {    
+    for (uint64_t i = 0; i < size_of_array; i++)
+    {
+        if (array[i] == elemento_a_buscar)
+        {
+            return 1;
+        }   
+    }
+    return 0;
 }
 
 int lista_contiene_elemento(lista_t* lista, uint32_t elemento_a_buscar) {
+    nodo_t* actual = lista->head;
 
+    if (actual == NULL)
+    {
+        return 0;
+    }
+    
+    while (actual != NULL)
+    {
+        if (array_contiene_elemento(actual->arreglo, actual->longitud, elemento_a_buscar) == 1)
+        {
+            return 1;
+        }
+        actual = actual->next;
+    }
+
+    return 0;
 }
 
 
 // Devuelve la memoria otorgada para construir la lista indicada por el primer argumento.
 // Tener en cuenta que ademas, se debe liberar la memoria correspondiente a cada array de cada elemento de la lista.
 void destruir_lista(lista_t* lista) {
+    nodo_t* actual = lista->head;
+    nodo_t* tmp;
+    while (actual != NULL)
+    {
+        tmp = actual->next;
+        free(actual->arreglo);
+        free(actual);
+        actual = tmp;
+    }
     
+    free(lista);
 }
