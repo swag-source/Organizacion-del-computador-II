@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include "contar_espacios.h"
 
 uint32_t longitud_de_string(char* string) {
 	uint32_t i = 0;
